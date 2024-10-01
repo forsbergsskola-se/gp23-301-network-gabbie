@@ -17,45 +17,63 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-int[] square = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+char[] board = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 string winner = null;
 bool isGamePlaying = false;
 // Start the Game
-app.MapPost("/Tic-Tac-Toe", (char name) =>
+app.MapPost("/Tic-Tac-Toe-New-Game", (char player) =>
 {
-    return winner != null ? $"{winner} won the game. Create a new one" : " ___________ \n" + 
-                                                                         "|___|___|___|\n" + 
-                                                                         "|___|___|___|\n" + 
-                                                                         "|___|___|___|";
+    return  " ___________ \n" + 
+            "|___|___|___|\n" + 
+            "|___|___|___|\n" + 
+            "|___|___|___|";
 })
     .WithName("StartTicTacToe")
     .WithOpenApi();
 
-/*
+// Player makes a move
+app.MapPost("/Tic-Tac-Toe-Move", (int add, char player) =>
+    {
+        int choice = add-1;
+        if (winner == null)
+        {
+            for (int i = 0; i < choice; i++)
+            {
+                if (board[choice] != player)
+                {
+                    board[choice] = player;
+                    return "Next players turn";
+                }
+                
+                else
+                {
+                    return "Field is taken, choose another field";
+                }
+                    
+                    
+            }
+        }
+        return $"Make a move {player}";
+    })
+    .WithName("PlayerMove")
+    .WithOpenApi();
+
+
 // Check whose turn it is
 app.MapGet("/Tic-Tac-Toe", () =>
-    { 
-        Console.WriteLine(" ___________ ");
-        Console.WriteLine($"|{0}|,{1}|,{2}|");
-        Console.WriteLine("|___|___|___|");
-        Console.WriteLine($"|{3}|,{4}|,{5}|");
-        Console.WriteLine("|___|___|___|");
-        Console.WriteLine($"|{6}|,{7}|,{8}|");
-        Console.WriteLine("|___|___|___|");
-        
-        return "Who's Turn is it";
+    {
+        return $" ___________ \n" +
+               $"| {board[0]} | {board[1]} | {board[2]} |\n" +
+               "|___|___|___|\n"+ 
+               $"| {board[3]} | {board[4]} | {board[5]} |\n"+ 
+               "|___|___|___|\n"+ 
+               $"| {board[6]} | {board[7]} | {board[8]} |\n"+ 
+               "|___|___|___|";
     })
     .WithName("CheckTurn")
     .WithOpenApi();
 
-// Player makes a move
-app.MapPost("/Tic-Tac-Toe", (int numberPlacement) =>
-    {
-        return "Make a move";
-    })
-    .WithName("MakeMove")
-    .WithOpenApi();
-
+/*
 //Check if there's a winner
 app.MapGet("/Tic-Tac-Toe", () =>
     {
