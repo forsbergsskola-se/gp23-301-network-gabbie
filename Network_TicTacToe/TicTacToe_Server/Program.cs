@@ -26,7 +26,7 @@ app.MapPost("/Tic-Tac-Toe", (string name) =>
     .WithName("StartTicTacToe")
     .WithOpenApi();
 
-// Check who's turn it is
+// Check whose turn it is
 app.MapGet("/Tic-Tac-Toe", () =>
     { 
         return "Who's Turn is it";
@@ -35,7 +35,7 @@ app.MapGet("/Tic-Tac-Toe", () =>
     .WithOpenApi();
 
 // Player makes a move
-app.MapPost("/Tic-Tac-Toe", (int numberPlacment) =>
+app.MapPost("/Tic-Tac-Toe", (int numberPlacement) =>
     {
         return "Make a move";
     })
