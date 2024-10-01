@@ -7,6 +7,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -16,44 +18,47 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-int currentNumber = Random.Shared.Next(1, 101);
-string winner = null;
-
-app.MapGet("/randomnumber", () =>
+// Start the Game
+app.MapPost("/Tic-Tac-Toe", (string name) =>
     {
-        return winner != null ? $"{winner} won the game. The number was {currentNumber}." : "The match is still going on!";
+        return "X or O";
     })
-    .WithName("GetRandomNumber")
+    .WithName("StartTicTacToe")
     .WithOpenApi();
 
-
-app.MapPut("/randomnumber", (int? number) =>
-    {
-        currentNumber = number ?? Random.Shared.Next(1, 101);
-        winner = null;
-        return (number == null ? "Random" : "Your") + " number successfully put. Tell your friends to try and guess it.";
+// Check who's turn it is
+app.MapGet("/Tic-Tac-Toe", () =>
+    { 
+        return "Who's Turn is it";
     })
-    .WithName("PutRandomNumber")
+    .WithName("CheckTurn")
     .WithOpenApi();
 
-app.MapPost("/randomnumber", (int guess, string name) =>
+// Player makes a move
+app.MapPost("/Tic-Tac-Toe", (int numberPlacment) =>
     {
-        if (winner != null) return $"{winner} already won the game. Time to go home.";
+        return "Make a move";
+    })
+    .WithName("MakeMove")
+    .WithOpenApi();
+
+//Check if there's a winner
+app.MapGet("/Tic-Tac-Toe", () =>
+    {
         
-        if (guess < currentNumber)
-        {
-            return "Guess higher.";
-        } else if (guess > currentNumber)
-        {
-            return "Guess lower.";
-        }
-        else
-        {
-            winner = name;
-            return "Correct! Great work!";
-        }
     })
-    .WithName("GuessRandomNumber")
+    .WithName("GetWinner")
     .WithOpenApi();
+
+// Start a new Game
+app.MapPut("/Tic-Tac-Toe", (string name) =>
+    {
+        
+    })
+    .WithName("NewGame")
+    .WithOpenApi();
+
 
 app.Run();
+
+
