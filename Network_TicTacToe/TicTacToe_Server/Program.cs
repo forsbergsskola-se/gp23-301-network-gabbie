@@ -16,29 +16,44 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+int currentNumber = Random.Shared.Next(1, 101);
+string winner = null;
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/randomnumber", () =>
     {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
+        return winner != null ? $"{winner} won the game. The number was {currentNumber}." : "The match is still going on!";
     })
-    .WithName("GetWeatherForecast")
+    .WithName("GetRandomNumber")
+    .WithOpenApi();
+
+
+app.MapPut("/randomnumber", (int? number) =>
+    {
+        currentNumber = number ?? Random.Shared.Next(1, 101);
+        winner = null;
+        return (number == null ? "Random" : "Your") + " number successfully put. Tell your friends to try and guess it.";
+    })
+    .WithName("PutRandomNumber")
+    .WithOpenApi();
+
+app.MapPost("/randomnumber", (int guess, string name) =>
+    {
+        if (winner != null) return $"{winner} already won the game. Time to go home.";
+        
+        if (guess < currentNumber)
+        {
+            return "Guess higher.";
+        } else if (guess > currentNumber)
+        {
+            return "Guess lower.";
+        }
+        else
+        {
+            winner = name;
+            return "Correct! Great work!";
+        }
+    })
+    .WithName("GuessRandomNumber")
     .WithOpenApi();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
