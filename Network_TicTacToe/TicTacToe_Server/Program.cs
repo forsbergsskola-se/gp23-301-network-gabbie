@@ -17,18 +17,32 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+int[] square = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+string winner = null;
+bool isGamePlaying = false;
 // Start the Game
-app.MapPost("/Tic-Tac-Toe", (string name) =>
-    {
-        return "X or O";
-    })
+app.MapPost("/Tic-Tac-Toe", (char name) =>
+{
+    return winner != null ? $"{winner} won the game. Create a new one" : " ___________ \n" + 
+                                                                         "|___|___|___|\n" + 
+                                                                         "|___|___|___|\n" + 
+                                                                         "|___|___|___|";
+})
     .WithName("StartTicTacToe")
     .WithOpenApi();
 
+/*
 // Check whose turn it is
 app.MapGet("/Tic-Tac-Toe", () =>
     { 
+        Console.WriteLine(" ___________ ");
+        Console.WriteLine($"|{0}|,{1}|,{2}|");
+        Console.WriteLine("|___|___|___|");
+        Console.WriteLine($"|{3}|,{4}|,{5}|");
+        Console.WriteLine("|___|___|___|");
+        Console.WriteLine($"|{6}|,{7}|,{8}|");
+        Console.WriteLine("|___|___|___|");
+        
         return "Who's Turn is it";
     })
     .WithName("CheckTurn")
@@ -56,7 +70,7 @@ app.MapPut("/Tic-Tac-Toe", (string name) =>
         
     })
     .WithName("NewGame")
-    .WithOpenApi();
+    .WithOpenApi();*/
 
 
 app.Run();
