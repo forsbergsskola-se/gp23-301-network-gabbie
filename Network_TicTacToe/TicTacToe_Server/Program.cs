@@ -37,18 +37,16 @@ app.MapPost("/Tic-Tac-Toe-New-Game", (char player1, char player2) =>
 // Player makes a move
 app.MapPost("/Tic-Tac-Toe-Move", (int add, char player) =>
     {
-        int choice = add-1;
         if (winner == null)
         {
-            for (int i = 0; i < choice; i++)
-            {
+            int choice = add-1;
                 if (board[choice] != 'x'|| board[choice] != 'o')
                 {
                     board[choice] = player;
                     return "Next players turn";
                 }
                 return "Field is taken, choose another field";
-            }
+            
         }
         return $"Make a move {player}";
     })
