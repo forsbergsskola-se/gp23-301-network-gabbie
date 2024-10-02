@@ -22,39 +22,40 @@ string winner = null;
 int newGame = 0;
 char playerX = 'X';
 char playerO = 'O';
+string name1 = null; // unnecessary
+string name2 = null; // unnecessary
 // Start the Game
-app.MapPost("/Tic-Tac-Toe-New-Game", (char player1, char player2) =>
+app.MapPost("/Tic-Tac-Toe-New-Game", (string player1, string player2) =>
 {
-    playerX = player1;
-    playerO = player2;
-    return  " ___________ \n" + 
-            "|___|___|___|\n" + 
-            "|___|___|___|\n" + 
-            "|___|___|___|";
+    // this whole endpoint is unnecessary
+    name1 = player1;
+    name2 = player2;
+
+    return "Let's Play!";
 })
     .WithName("StartTicTacToe")
     .WithOpenApi();
 
 // Player makes a move
-app.MapPost("/Tic-Tac-Toe-Move", (int add, char player) =>
+app.MapPost("/Tic-Tac-Toe-Move", (int add, char playerMark) =>
     {
         if (winner != null)
             return $"{winner} won this turn. Start a new game!";
-        
+        if (name1 == null || name2 == null)
+            return "Go to Start Tic-Tac-Toe-New-Game! To start playing";
         
         if (newGame % 2 == 0)
-            player = playerX;
+            playerMark = playerX;
         if (newGame % 2 == 1) 
-            player = playerO;
+            playerMark = playerO;
         int choice = add-1; 
         if (board[choice] != 'X' && board[choice] != 'O') 
         { 
-            board[choice] = player; 
+            board[choice] = playerMark; 
             newGame++; 
             return "Next players turn"; // Make this the next {player} 
         } 
         return "Field is taken, choose another field";
-        return $"Make a move {player}";
     })
     .WithName("PlayerMove")
     .WithOpenApi();
@@ -63,13 +64,22 @@ app.MapPost("/Tic-Tac-Toe-Move", (int add, char player) =>
 // Check whose turn it is
 app.MapGet("/Tic-Tac-Toe-Turn", () =>
     {
-        return $" ___________ \n" +
-               $"| {board[0]} | {board[1]} | {board[2]} |\n" +
-               "|___|___|___|\n"+ 
-               $"| {board[3]} | {board[4]} | {board[5]} |\n"+ 
-               "|___|___|___|\n"+ 
-               $"| {board[6]} | {board[7]} | {board[8]} |\n"+ 
-               "|___|___|___|";
+        if (newGame % 2 == 0)
+            return $"{name1} turn to play" + $" ___________ \n" +
+                   $"| {board[0]} | {board[1]} | {board[2]} |\n" +
+                   "|___|___|___|\n"+ 
+                   $"| {board[3]} | {board[4]} | {board[5]} |\n"+ 
+                   "|___|___|___|\n"+ 
+                   $"| {board[6]} | {board[7]} | {board[8]} |\n"+ 
+                   "|___|___|___|";
+        
+        return $"{name2} turn to play" + $" ___________ \n" +
+                   $"| {board[0]} | {board[1]} | {board[2]} |\n" +
+                   "|___|___|___|\n"+ 
+                   $"| {board[3]} | {board[4]} | {board[5]} |\n"+ 
+                   "|___|___|___|\n"+ 
+                   $"| {board[6]} | {board[7]} | {board[8]} |\n"+ 
+                   "|___|___|___|";
     })
     .WithName("CheckTurn")
     .WithOpenApi();
@@ -78,17 +88,14 @@ app.MapGet("/Tic-Tac-Toe-Turn", () =>
 //Check if there's a winner
 app.MapGet("/Tic-Tac-Toe-Winner", () =>
     {
-        string xWinner = playerX.ToString();
-        string oWinner = playerO.ToString();
         if (board[0] == board[1] && board[1] == board[2])
         {
+            winner = "winner";
             if (board[0] == 'X')
             {
-                winner = xWinner;
-                return $"Player 1 {winner} wins!";
+                return $"Player 1 {name1} wins!";
             }
-            winner = oWinner; 
-            return $"Player 2 {winner} wins!";
+            return $"Player 2 {name2} wins!";
             
             return "winner first row horizontal";
         }
@@ -97,7 +104,7 @@ app.MapGet("/Tic-Tac-Toe-Winner", () =>
         {
             if (board[3] == 'X')
             {
-                winner = xWinner;
+                
                 return $"Player 1 {winner} wins!";
             }
             
@@ -109,10 +116,9 @@ app.MapGet("/Tic-Tac-Toe-Winner", () =>
         {
             if (board[6] == 'X')
             {
-                winner = xWinner;
                 return $"Player 1 {winner} wins!";
             }
-            winner = oWinner; 
+           
             return $"Player 2 {winner} wins!";
         }
 
@@ -139,9 +145,11 @@ app.MapGet("/Tic-Tac-Toe-Winner", () =>
 app.MapPut("/Tic-Tac-Toe", (int restartGame) =>
     {
         newGame = restartGame;
-        winner = null;
         if (newGame == 0)
         {
+            winner = null;
+            name1 = null;
+            name2 = null;
             board[0] = '1'; board[1] = '2'; board[2] = '3';
             board[3] = '4'; board[4] = '5'; board[5] = '6'; 
             board[6] = '7'; board[7] = '8'; board[8] = '9';
