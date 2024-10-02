@@ -19,8 +19,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 char[] board = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 string winner = null;
-char playerX;
-char playerO;
+int newGame = 0;
+char playerX = 'X';
+char playerO = 'O';
 // Start the Game
 app.MapPost("/Tic-Tac-Toe-New-Game", (char player1, char player2) =>
 {
@@ -37,16 +38,24 @@ app.MapPost("/Tic-Tac-Toe-New-Game", (char player1, char player2) =>
 // Player makes a move
 app.MapPost("/Tic-Tac-Toe-Move", (int add, char player) =>
     {
+        // if newGame % 2 == 0 it's playerX's turn
+        // else it's playerO's turn
+
+        if (newGame % 2 == 0)
+            player = playerX;
+        if (newGame % 2 == 1) 
+            player = playerO;
+        
         if (winner == null)
         {
             int choice = add-1;
                 if (board[choice] != 'x'|| board[choice] != 'o')
                 {
                     board[choice] = player;
-                    return "Next players turn";
+                    newGame++;
+                    return $"{player} turn";
                 }
                 return "Field is taken, choose another field";
-            
         }
         return $"Make a move {player}";
     })
@@ -70,21 +79,21 @@ app.MapGet("/Tic-Tac-Toe-Turn", () =>
 
 
 //Check if there's a winner
-app.MapGet("/Tic-Tac-Toe-Winner", (char name) =>
+app.MapGet("/Tic-Tac-Toe-Winner", () =>
     {
         if (board[0] == board[1] && board[1] == board[2])
         {
             if (board[0] =='x')
-                return "Player 1 wins!";
-            return "Player 2 wins!";
+                return $"Player 1 {winner}wins!";
+            return $"Player 2 {winner} wins!";
             return "winner first row horizontal";
         }
 
         if (board[3] == board[4] && board[4] == board[5])
         {
             if (board[3] =='x')
-                return "Player 1 wins!";
-            return "Player 2 wins!";
+                return $"Player 1 {winner}wins!";
+            return $"Player 2 {winner} wins!";
             return "winner second row horizontal";
         }
         if (board[6] == board[7] && board[7] == board[8])
