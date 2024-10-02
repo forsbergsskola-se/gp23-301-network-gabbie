@@ -81,23 +81,43 @@ app.MapGet("/Tic-Tac-Toe-Turn", () =>
 //Check if there's a winner
 app.MapGet("/Tic-Tac-Toe-Winner", () =>
     {
+        string xWinner = playerX.ToString();
+        string oWinner = playerO.ToString();
         if (board[0] == board[1] && board[1] == board[2])
         {
-            if (board[0] =='x')
-                return $"Player 1 {winner}wins!";
+            if (board[0] == 'X')
+            {
+                winner = xWinner;
+                return $"Player 1 {winner} wins!";
+            }
+            winner = oWinner; 
             return $"Player 2 {winner} wins!";
+            
             return "winner first row horizontal";
         }
 
         if (board[3] == board[4] && board[4] == board[5])
         {
-            if (board[3] =='x')
-                return $"Player 1 {winner}wins!";
+            if (board[3] == 'X')
+            {
+                winner = xWinner;
+                return $"Player 1 {winner} wins!";
+            }
+            
             return $"Player 2 {winner} wins!";
             return "winner second row horizontal";
         }
+
         if (board[6] == board[7] && board[7] == board[8])
-        { return "winner third row horizontal"; }
+        {
+            if (board[6] == 'X')
+            {
+                winner = xWinner;
+                return $"Player 1 {winner} wins!";
+            }
+            winner = oWinner; 
+            return $"Player 2 {winner} wins!";
+        }
 
 
         if (board[0] == board[3] && board[3] == board[6])
