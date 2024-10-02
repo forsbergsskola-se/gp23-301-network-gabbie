@@ -38,9 +38,6 @@ app.MapPost("/Tic-Tac-Toe-New-Game", (char player1, char player2) =>
 // Player makes a move
 app.MapPost("/Tic-Tac-Toe-Move", (int add, char player) =>
     {
-        // if newGame % 2 == 0 it's playerX's turn
-        // else it's playerO's turn
-
         if (newGame % 2 == 0)
             player = playerX;
         if (newGame % 2 == 1) 
@@ -139,12 +136,29 @@ app.MapGet("/Tic-Tac-Toe-Winner", () =>
     .WithOpenApi();
 
 // Start a new Game
-/*app.MapPut("/Tic-Tac-Toe", (string name) =>
+app.MapPut("/Tic-Tac-Toe", (int restartGame) =>
     {
-        
+        newGame = restartGame;
+        winner = null;
+        if (newGame == 0)
+        {
+            board[0] = '1'; board[1] = '2'; board[2] = '3';
+            board[3] = '4'; board[4] = '5'; board[5] = '6'; 
+            board[6] = '7'; board[7] = '8'; board[8] = '9';
+            return "New Game" +
+                   " ___________ \n" +
+                   $"| {board[0]} | {board[1]} | {board[2]} |\n" +
+                   "|___|___|___|\n"+ 
+                   $"| {board[3]} | {board[4]} | {board[5]} |\n"+ 
+                   "|___|___|___|\n"+ 
+                   $"| {board[6]} | {board[7]} | {board[8]} |\n"+ 
+                   "|___|___|___|";
+        }
+        return "Game Ongoing";
+
     })
     .WithName("NewGame")
-    .WithOpenApi();*/
+    .WithOpenApi();
 
 
 app.Run();
