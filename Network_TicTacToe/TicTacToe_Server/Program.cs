@@ -22,14 +22,13 @@ string winner = null;
 int newGame = 0;
 char playerX = 'X';
 char playerO = 'O';
-string name1 = null; // unnecessary extra
-string name2 = null; // unnecessary extra
 // Start the Game
-app.MapPost("/Tic-Tac-Toe-New-Game", (string player1, string player2) =>
+app.MapPost("/Tic-Tac-Toe-New-Game", (char player) =>
 {
-    // this whole endpoint is extra and unnecessary
-    name1 = player1;
-    name2 = player2;
+   
+    
+    
+    // Server decide first connection is player 1 (server) and 2 is player 2 (client)
 
     return "Let's Play!";
 })
@@ -37,25 +36,28 @@ app.MapPost("/Tic-Tac-Toe-New-Game", (string player1, string player2) =>
     .WithOpenApi();
 
 // Player makes a move
-app.MapPost("/Tic-Tac-Toe-Move", (int add, char playerMark) =>
+app.MapPost("/Tic-Tac-Toe-Move", (int add, char playerSymbol) =>
     {
+        
         if (winner != null)
             return $"{winner} won this turn. Start a new game!";
-        if (name1 == null || name2 == null)
-            return "Go to Start Tic-Tac-Toe-New-Game! To start playing";
+
+        if (newGame % 2 == 0 && playerSymbol == 'x') 
+            PlayMove(playerSymbol = playerX);
+
+        if (newGame % 2 == 1 && playerSymbol == 'o') 
+            PlayMove(playerSymbol = playerO);
         
-        if (newGame % 2 == 0)
-            playerMark = playerX;
-        if (newGame % 2 == 1) 
-            playerMark = playerO;
-        int choice = add-1; 
-        if (board[choice] != 'X' && board[choice] != 'O') 
-        { 
-            board[choice] = playerMark; 
-            newGame++; 
-            return "Next players turn"; // Make this the next {player} 
-        } 
-        return "Field is taken, choose another field";
+        void PlayMove(char symbol)
+        {
+            int choice = add-1; 
+            if (board[choice] != 'X' && board[choice] != 'O') 
+            { 
+                board[choice] = symbol; 
+                newGame++;
+            }
+        }
+        return "It's not your turn yet";
     })
     .WithName("PlayerMove")
     .WithOpenApi();
@@ -65,7 +67,7 @@ app.MapPost("/Tic-Tac-Toe-Move", (int add, char playerMark) =>
 app.MapGet("/Tic-Tac-Toe-Turn", () =>
     {
         if (newGame % 2 == 0)
-            return $"{name1} turn to play\n" + 
+            return $"{playerX} turn to play\n" + 
                    " ___________ \n" +
                    $"| {board[0]} | {board[1]} | {board[2]} |\n" +
                    "|___|___|___|\n"+ 
@@ -74,7 +76,7 @@ app.MapGet("/Tic-Tac-Toe-Turn", () =>
                    $"| {board[6]} | {board[7]} | {board[8]} |\n"+ 
                    "|___|___|___|";
         
-        return $"{name2} turn to play\n" + 
+        return $"{playerO} turn to play\n" + 
                " ___________ \n" +
                $"| {board[0]} | {board[1]} | {board[2]} |\n" + 
                "|___|___|___|\n"+ 
@@ -95,9 +97,9 @@ app.MapGet("/Tic-Tac-Toe-Winner", () =>
             winner = "winner";
             if (board[0] == 'X')
             {
-                return $"Player 1 {name1} wins!";
+                return $"Player 1 {winner} wins!";
             }
-            return $"Player 2 {name2} wins!";
+            return $"Player 2 {winner} wins!";
             
             //"winner first row horizontal";
         }
@@ -107,10 +109,10 @@ app.MapGet("/Tic-Tac-Toe-Winner", () =>
             if (board[3] == 'X')
             {
                 
-                return $"Player 1 {name1} wins!";
+                return $"Player 1 {winner} wins!";
             }
             
-            return $"Player 2 {name2} wins!";
+            return $"Player 2 {winner} wins!";
             //"winner second row horizontal";
         }
 
@@ -118,10 +120,10 @@ app.MapGet("/Tic-Tac-Toe-Winner", () =>
         {
             if (board[6] == 'X')
             {
-                return $"Player 1 {name1} wins!";
+                return $"Player 1 {winner} wins!";
             }
            
-            return $"Player 2 {name2} wins!";
+            return $"Player 2 {winner} wins!";
         }
 
 
@@ -152,8 +154,6 @@ app.MapPut("/Tic-Tac-Toe-Restart", (int restartGame) =>
         if (newGame == 0)
         {
             winner = null;
-            name1 = null;
-            name2 = null;
             board[0] = '1'; board[1] = '2'; board[2] = '3';
             board[3] = '4'; board[4] = '5'; board[5] = '6'; 
             board[6] = '7'; board[7] = '8'; board[8] = '9';
