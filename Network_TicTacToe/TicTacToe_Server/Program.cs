@@ -23,12 +23,10 @@ int newGame = 0;
 char playerX = 'X';
 char playerO = 'O';
 // Start the Game
-app.MapPost("/Tic-Tac-Toe-New-Game", (char player) =>
-{
-   
+app.MapPost("/Tic-Tac-Toe-New-Game", (string player) =>
+    {
     
-    
-    // Server decide first connection is player 1 (server) and 2 is player 2 (client)
+    // Server decide first connection is player 1 (server) and 2 connection is player 2 (client)
 
     return "Let's Play!";
 })
@@ -37,28 +35,35 @@ app.MapPost("/Tic-Tac-Toe-New-Game", (char player) =>
 
 // Player makes a move
 app.MapPost("/Tic-Tac-Toe-Move", (int add, char playerSymbol) =>
+{
+    if (winner != null)
     {
-        
-        if (winner != null)
-            return $"{winner} won this turn. Start a new game!";
+        return $"{winner} won this turn. Start a new game!";
+    }
 
-        if (newGame % 2 == 0 && playerSymbol == 'x') 
-            PlayMove(playerSymbol = playerX);
+    if (newGame % 2 == 0 && playerSymbol == 'x')
+    {
+        PlayMove(playerSymbol = playerX);
+        return $"{playerSymbol} Turn to play";
+    }
 
-        if (newGame % 2 == 1 && playerSymbol == 'o') 
-            PlayMove(playerSymbol = playerO);
+    if (newGame % 2 == 1 && playerSymbol == 'o')
+    {
+        PlayMove(playerSymbol = playerO);
+        return $"{playerSymbol} Turn to play";
+    }
         
-        void PlayMove(char symbol)
-        {
-            int choice = add-1; 
-            if (board[choice] != 'X' && board[choice] != 'O') 
-            { 
-                board[choice] = symbol; 
-                newGame++;
-            }
-        }
-        return "It's not your turn yet";
-    })
+void PlayMove(char symbol) 
+{ 
+    int choice = add-1; 
+    if (board[choice] != 'X' && board[choice] != 'O') 
+    { 
+        board[choice] = symbol; 
+        newGame++;
+    }
+}
+    return "You can't do that!";
+})
     .WithName("PlayerMove")
     .WithOpenApi();
 
@@ -92,26 +97,25 @@ app.MapGet("/Tic-Tac-Toe-Turn", () =>
 //Check if there's a winner
 app.MapGet("/Tic-Tac-Toe-Winner", () =>
     {
-        if (board[0] == board[1] && board[1] == board[2])
-        {
-            winner = "winner";
-            if (board[0] == 'X')
-            {
-                return $"Player 1 {winner} wins!";
-            }
-            return $"Player 2 {winner} wins!";
+        
+        
+        if (board[0] == board[1] && board[1] == board[2]) {
+                if (board[0] == 'X')
+                {
+                    return $"Player 1 {winner} wins!";
+                }
+                return $"Player 2 {winner} wins!";
             
-            //"winner first row horizontal";
+                //"winner first row horizontal";
         }
 
         if (board[3] == board[4] && board[4] == board[5])
         {
             if (board[3] == 'X')
             {
-                
                 return $"Player 1 {winner} wins!";
             }
-            
+        
             return $"Player 2 {winner} wins!";
             //"winner second row horizontal";
         }
@@ -122,25 +126,71 @@ app.MapGet("/Tic-Tac-Toe-Winner", () =>
             {
                 return $"Player 1 {winner} wins!";
             }
-           
+       
             return $"Player 2 {winner} wins!";
         }
 
 
         if (board[0] == board[3] && board[3] == board[6])
-        { return "winner first row vertical"; }
+        { if (board[0] == 'X')
+            {
+            
+                return $"Player 1 {winner} wins!";
+            }
+        
+            return $"Player 2 {winner} wins!"; 
+        }
+        
         if (board[1] == board[4] && board[4] == board[7])
-        { return "winner secon row vertical"; }
+        { if (board[1] == 'X')
+            {
+            
+                return $"Player 1 {winner} wins!";
+            }
+        
+            return $"Player 2 {winner} wins!"; 
+        }
+
         if (board[2] == board[5] && board[5] == board[8])
-        { return "winner third row vertical"; }
+        {
+            if (board[2] == 'X')
+            {
+            
+                return $"Player 1 {winner} wins!";
+            }
+        
+            return $"Player 2 {winner} wins!";
+            
+        }
 
 
         if (board[0] == board[4] && board[4] == board[8])
-        { return "winner top left cross";}
-        if (board[0] == board[4] && board[4] == board[6])
-        { return "winner top right cross"; }
+        { 
+            if (board[0] == 'X')
+            {
+            
+                return $"Player 1 {winner} wins!";
+            }
         
+            return $"Player 2 {winner} wins!";
+            
+        }
+
+        if (board[0] == board[4] && board[4] == board[6])
+        {
+            if (board[0] == 'X')
+            {
+            
+                return $"Player 1 {winner} wins!";
+            }
+        
+            return $"Player 2 {winner} wins!";
+            
+        }
+    
         return "no winner yet";
+
+        
         
         // draw is missing
     })
@@ -157,14 +207,7 @@ app.MapPut("/Tic-Tac-Toe-Restart", (int restartGame) =>
             board[0] = '1'; board[1] = '2'; board[2] = '3';
             board[3] = '4'; board[4] = '5'; board[5] = '6'; 
             board[6] = '7'; board[7] = '8'; board[8] = '9';
-            return "New Game" +
-                   " ___________ \n" +
-                   $"| {board[0]} | {board[1]} | {board[2]} |\n" +
-                   "|___|___|___|\n"+ 
-                   $"| {board[3]} | {board[4]} | {board[5]} |\n"+ 
-                   "|___|___|___|\n"+ 
-                   $"| {board[6]} | {board[7]} | {board[8]} |\n"+ 
-                   "|___|___|___|";
+            return "New Game";
         }
         return "Game Ongoing";
 
