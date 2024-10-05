@@ -20,50 +20,55 @@ app.UseHttpsRedirection();
 char[] board = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 string winner = null;
 int newGame = 0;
-char playerX = 'X';
-char playerO = 'O';
+const char playerX = 'X';
+const char playerO = 'O';
+char[] playerSymbols = [playerX, playerO];
+int players = 0;
 // Start the Game
-app.MapPost("/Tic-Tac-Toe-New-Game", (string player) =>
+app.MapPost("/Tic-Tac-Toe-New-Game", () =>
     {
-    
-    // Server decide first connection is player 1 (server) and 2 connection is player 2 (client)
+        if (players >= 2)
+            return "game is full";
+        // Server decide first connection is player 1 (server) and 2 connection is player 2 (client)
 
-    return "Let's Play!";
-})
+    return $"You are {players++}";
+    })
     .WithName("StartTicTacToe")
     .WithOpenApi();
 
-// Player makes a move
-app.MapPost("/Tic-Tac-Toe-Move", (int add, char playerSymbol) =>
-{
-    if (winner != null)
+// Player move
+app.MapPost("/Tic-Tac-Toe-Move", (int add, int playerNr) =>
     {
-        return $"{winner} won this turn. Start a new game!";
-    }
+        if (winner != null)
+        {
+            return $"{winner} won this turn. Start a new game!";
+        }
 
-    if (newGame % 2 == 0 && playerSymbol == 'x')
-    {
-        PlayMove(playerSymbol = playerX);
-        return $"{playerSymbol} Turn to play";
-    }
+        if (newGame % 2 != playerNr)
+        {
+            return $"not your Turn!";
+        }
 
-    if (newGame % 2 == 1 && playerSymbol == 'o')
-    {
-        PlayMove(playerSymbol = playerO);
-        return $"{playerSymbol} Turn to play";
-    }
+        if(!PlayMove(playerSymbols[playerNr])) return "Invalid Move!";
+
+        if (GetWinner() != default)
+        {
+            winner = GetWinner().ToString();
+        }
         
-void PlayMove(char symbol) 
-{ 
-    int choice = add-1; 
-    if (board[choice] != 'X' && board[choice] != 'O') 
-    { 
-        board[choice] = symbol; 
-        newGame++;
-    }
-}
-    return "You can't do that!";
-})
+        return $"successful turn";
+
+        
+        bool PlayMove(char symbol) 
+        { 
+            int choice = add-1;
+            if (board[choice] == playerX || board[choice] == playerO) return false;
+            
+            board[choice] = symbol; 
+            newGame++;
+            return true;
+        }
+    })
     .WithName("PlayerMove")
     .WithOpenApi();
 
@@ -93,105 +98,42 @@ app.MapGet("/Tic-Tac-Toe-Turn", () =>
     .WithName("CheckTurn")
     .WithOpenApi();
 
+char GetWinner()
+{
+    for (int i = 0; i < 7; i+=3)
+    {
+        if (board[i] == board[i+1] && board[i+1] == board[i+2])
+        {
+            return board[i];
+        }
+    }
+    
+    for (int i = 0; i < 3; i++)
+    {
+        if (board[i] == board[i+3] && board[i+3] == board[i+6])
+        { 
+            return board[i];
+        }
+    }
+
+
+
+    if (board[0] == board[4] && board[4] == board[8]) 
+    { 
+        return board[0];
+    }
+    
+    if (board[2] == board[4] && board[4] == board[6]) 
+    { 
+        return board[0];
+    }
+    
+    return default;
+}
 
 //Check if there's a winner
 app.MapGet("/Tic-Tac-Toe-Winner", () =>
     {
-        
-        
-        if (board[0] == board[1] && board[1] == board[2]) {
-                if (board[0] == 'X')
-                {
-                    return $"Player 1 {winner} wins!";
-                }
-                return $"Player 2 {winner} wins!";
-            
-                //"winner first row horizontal";
-        }
-
-        if (board[3] == board[4] && board[4] == board[5])
-        {
-            if (board[3] == 'X')
-            {
-                return $"Player 1 {winner} wins!";
-            }
-        
-            return $"Player 2 {winner} wins!";
-            //"winner second row horizontal";
-        }
-
-        if (board[6] == board[7] && board[7] == board[8])
-        {
-            if (board[6] == 'X')
-            {
-                return $"Player 1 {winner} wins!";
-            }
-       
-            return $"Player 2 {winner} wins!";
-        }
-
-
-        if (board[0] == board[3] && board[3] == board[6])
-        { if (board[0] == 'X')
-            {
-            
-                return $"Player 1 {winner} wins!";
-            }
-        
-            return $"Player 2 {winner} wins!"; 
-        }
-        
-        if (board[1] == board[4] && board[4] == board[7])
-        { if (board[1] == 'X')
-            {
-            
-                return $"Player 1 {winner} wins!";
-            }
-        
-            return $"Player 2 {winner} wins!"; 
-        }
-
-        if (board[2] == board[5] && board[5] == board[8])
-        {
-            if (board[2] == 'X')
-            {
-            
-                return $"Player 1 {winner} wins!";
-            }
-        
-            return $"Player 2 {winner} wins!";
-            
-        }
-
-
-        if (board[0] == board[4] && board[4] == board[8])
-        { 
-            if (board[0] == 'X')
-            {
-            
-                return $"Player 1 {winner} wins!";
-            }
-        
-            return $"Player 2 {winner} wins!";
-            
-        }
-
-        if (board[0] == board[4] && board[4] == board[6])
-        {
-            if (board[0] == 'X')
-            {
-            
-                return $"Player 1 {winner} wins!";
-            }
-        
-            return $"Player 2 {winner} wins!";
-            
-        }
-    
-        return "no winner yet";
-
-        
-        
         // draw is missing
     })
     .WithName("GetWinner")
