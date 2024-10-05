@@ -43,6 +43,8 @@ app.MapPost("/Tic-Tac-Toe-Move", (int add, int playerNr) =>
         {
             return $"{winner} won this turn. Start a new game!";
         }
+        if (newGame == 9)
+            return "It's a draw!";
 
         if (newGame % 2 != playerNr)
         {
