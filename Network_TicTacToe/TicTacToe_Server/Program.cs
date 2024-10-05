@@ -21,7 +21,8 @@ char[] board = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 string winner = null;
 int newGame = 0;
 const char playerX = 'X';
-const char playerO = 'O';
+const char playerO = 'O'; // A, B
+string?[] playerGuids = {null, null};
 char[] playerSymbols = [playerX, playerO];
 int players = 0;
 // Start the Game
@@ -30,15 +31,29 @@ app.MapPost("/Tic-Tac-Toe-New-Game", () =>
         if (players >= 2)
             return "game is full";
         // Server decide first connection is player 1 (server) and 2 connection is player 2 (client)
-
-    return $"You are {players++}";
+        playerGuids[players] = Guid.NewGuid().ToString();
+        return $"You are {playerGuids[players++]}";
     })
     .WithName("StartTicTacToe")
     .WithOpenApi();
 
 // Player move
-app.MapPost("/Tic-Tac-Toe-Move", (int add, int playerNr) =>
+app.MapPost("/Tic-Tac-Toe-Move", (int add, string playerId) =>
     {
+        int? playerNumber = null;
+        for (var i = 0; i < playerGuids.Length; i++)
+        {
+            if (playerGuids[i] == playerId)
+            {
+                playerNumber = i;
+                break;
+            }
+        }
+
+        if (playerNumber == null)
+        {
+            return "Invalid guid!";
+        }
         if (winner != null)
         {
             return $"{winner} won this turn. Start a new game!";
@@ -46,12 +61,12 @@ app.MapPost("/Tic-Tac-Toe-Move", (int add, int playerNr) =>
         if (newGame == 9)
             return "It's a draw!";
 
-        if (newGame % 2 != playerNr)
+        if (newGame % 2 != playerNumber.Value)
         {
             return $"not your Turn!";
         }
 
-        if(!PlayMove(playerSymbols[playerNr])) return "Invalid Move!";
+        if(!PlayMove(playerSymbols[playerNumber.Value])) return "Invalid Move!";
 
         if (GetWinner() != default)
         {
@@ -78,17 +93,20 @@ app.MapPost("/Tic-Tac-Toe-Move", (int add, int playerNr) =>
 // Check whose turn it is
 app.MapGet("/Tic-Tac-Toe-Turn", () =>
     {
-        if (newGame % 2 == 0)
-            return $"{playerX} turn to play\n" + 
-                   " ___________ \n" +
-                   $"| {board[0]} | {board[1]} | {board[2]} |\n" +
-                   "|___|___|___|\n"+ 
-                   $"| {board[3]} | {board[4]} | {board[5]} |\n"+ 
-                   "|___|___|___|\n"+ 
-                   $"| {board[6]} | {board[7]} | {board[8]} |\n"+ 
-                   "|___|___|___|";
+        string firstLine = null;
+        if (winner != null)
+        {
+            firstLine = $"{winner} won this game.";
+        } else if (newGame == 9)
+        {
+            firstLine = "It's a draw!";
+        }
+        else
+        {
+            firstLine = $"{playerSymbols[newGame%2]} turn to play!";
+        }
         
-        return $"{playerO} turn to play\n" + 
+        return $"{firstLine}\n" + 
                " ___________ \n" +
                $"| {board[0]} | {board[1]} | {board[2]} |\n" + 
                "|___|___|___|\n"+ 
